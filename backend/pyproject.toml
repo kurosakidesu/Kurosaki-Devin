@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "transfer-order-backend"
+version = "0.1.0"
+description = "Transfer Order List Screen Backend"
+authors = ["dev"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["standard"], version = "^0.115.0"}
+uvicorn = {extras = ["standard"], version = "^0.30.0"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
