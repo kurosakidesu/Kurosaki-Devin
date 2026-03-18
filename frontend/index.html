@@ -1082,9 +1082,9 @@ function stopAutoUpdate() {
 function shiftDate(days) {
   const fromEl = document.getElementById('dateFrom');
   const toEl = document.getElementById('dateTo');
-  const d = new Date(fromEl.value);
+  const d = new Date(fromEl.value + 'T00:00:00');
   d.setDate(d.getDate() + days);
-  const newDate = d.toISOString().split('T')[0];
+  const newDate = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   fromEl.value = newDate;
   toEl.value = newDate;
   doSearch();
