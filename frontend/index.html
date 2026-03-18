@@ -728,7 +728,7 @@ tbody td.num {
 /* ============================================================
    Configuration & State
    ============================================================ */
-const API_BASE = 'http://localhost:8000';
+const API_BASE = (location.port === '3000') ? 'http://localhost:8000' : '';
 let autoUpdate = true;
 let autoUpdateTimer = null;
 let selectedRow = null;

@@ -4,9 +4,11 @@ import io
 import datetime
 from typing import Optional
 
+import pathlib
+
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
 from database import get_connection, init_db, seed_data
 
@@ -436,7 +438,7 @@ def get_code_names(name_type: str):
     return [{"code": r["name_code"], "name": r["name_value"]} for r in rows]
 
 
-@app.get("/api/order_receive")
+@app.post("/api/order_receive")
 def order_receive(date_from: str = Query(...), date_to: str = Query(...)):
     """Dummy: オーダ受信処理."""
     # TODO: 実際のオーダ受信処理（外部連携）はダミー
@@ -518,6 +520,18 @@ def weighing_accept(internal_no: str = Query(...), slip_branch_no: str = Query(.
     """Dummy: 計量受付処理."""
     # TODO: 実際の計量受付処理はダミー
     return {"message": "計量受付を行いました（ダミー）"}
+
+
+# ---------------------------------------------------------------------------
+# Serve frontend
+# ---------------------------------------------------------------------------
+_FRONTEND_DIR = pathlib.Path(__file__).resolve().parent.parent / "frontend"
+
+
+@app.get("/")
+def serve_frontend():
+    """Serve the frontend index.html."""
+    return FileResponse(_FRONTEND_DIR / "index.html", media_type="text/html")
 
 
 if __name__ == "__main__":
