@@ -468,7 +468,8 @@ def admission_accept(internal_no: str = Query(...), slip_branch_no: str = Query(
     )
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     conn.execute(
-        "INSERT OR REPLACE INTO land_record (internal_no, slip_branch_no, admission_datetime) VALUES (?, ?, ?)",
+        "INSERT INTO land_record (internal_no, slip_branch_no, admission_datetime) VALUES (?, ?, ?) "
+        "ON CONFLICT(internal_no, slip_branch_no) DO UPDATE SET admission_datetime = excluded.admission_datetime",
         (internal_no, slip_branch_no, now),
     )
     conn.commit()

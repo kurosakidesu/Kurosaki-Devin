@@ -749,7 +749,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function setTodayDate() {
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
   document.getElementById('dateFrom').value = today;
   document.getElementById('dateTo').value = today;
 }
@@ -1108,10 +1109,8 @@ async function doCSVExport() {
     const res = await fetch(`${API_BASE}/api/orders/csv?${params}`);
     if (res.headers.get('content-type')?.includes('application/json')) {
       const json = await res.json();
-      if (json.error) {
-        alert(json.error);
-        return;
-      }
+      alert(json.error || json.detail || 'CSV出力でエラーが発生しました');
+      return;
     }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -1152,7 +1151,7 @@ async function doOrderReceive() {
   if (!ok) return;
 
   try {
-    const res = await fetch(`${API_BASE}/api/order_receive?date_from=${dateFrom}&date_to=${dateTo}`);
+    const res = await fetch(`${API_BASE}/api/order_receive?date_from=${dateFrom}&date_to=${dateTo}`, {method:'POST'});
     const json = await res.json();
     alert(json.message);
 
