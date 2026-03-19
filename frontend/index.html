@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陸上入出荷オーダ一覧</title>
+<style>
+/* ============================================================
+   Modern SaaS-style Design
+   ============================================================ */
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #dbeafe;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --white: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --radius: 8px;
+  --radius-sm: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: var(--gray-100);
+  color: var(--gray-800);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---- Header ---- */
+.app-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.auto-update-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.auto-update-badge.on {
+  background: #dcfce7;
+  color: #166534;
+}
+.auto-update-badge.off {
+  background: #fef2f2;
+  color: #991b1b;
+}
+.auto-update-badge .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.auto-update-badge.on .dot { background: #16a34a; }
+.auto-update-badge.off .dot { background: #dc2626; }
+
+/* ---- Main Container ---- */
+.main-container {
+  padding: 16px 24px;
+  max-width: 100%;
+}
+
+/* ---- Date & Order Bar ---- */
+.date-order-bar {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.date-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.date-group label {
+  font-weight: 600;
+  color: var(--gray-600);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.date-group input[type="date"] {
+  padding: 6px 10px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--gray-800);
+  background: var(--white);
+}
+.date-nav-btn {
+  padding: 5px 10px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--gray-600);
+  transition: all 0.15s;
+}
+.date-nav-btn:hover {
+  background: var(--gray-50);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.order-separator {
+  width: 1px;
+  height: 32px;
+  background: var(--gray-200);
+}
+.order-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.order-group label.group-label {
+  font-weight: 600;
+  color: var(--gray-600);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.order-checks {
+  display: flex;
+  gap: 4px;
+}
+.order-check-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.order-check-item input[type="checkbox"],
+.order-check-item input[type="radio"] {
+  accent-color: var(--primary);
+}
+.order-check-item label {
+  font-size: 12px;
+  color: var(--gray-700);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ---- Action Bar ---- */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---- Filter Panel ---- */
+.filter-panel {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.filter-header {
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+.filter-header:hover {
+  background: var(--gray-100);
+}
+.filter-header h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+.filter-toggle-icon {
+  transition: transform 0.2s;
+  color: var(--gray-400);
+  font-size: 14px;
+}
+.filter-toggle-icon.collapsed {
+  transform: rotate(-90deg);
+}
+.filter-body {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.filter-body.hidden {
+  display: none;
+}
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.filter-item label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.filter-item input,
+.filter-item select {
+  padding: 6px 10px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--gray-800);
+  background: var(--white);
+  transition: border-color 0.15s;
+}
+.filter-item input:focus,
+.filter-item select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+/* ---- Buttons ---- */
+.btn {
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--primary);
+  color: var(--white);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+.btn-secondary {
+  background: var(--white);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+}
+.btn-danger {
+  background: var(--white);
+  color: var(--danger);
+  border: 1px solid #fca5a5;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #fef2f2;
+}
+.btn-success {
+  background: var(--white);
+  color: var(--success);
+  border: 1px solid #86efac;
+}
+.btn-success:hover:not(:disabled) {
+  background: #f0fdf4;
+}
+.btn-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.btn-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  padding: 0 4px;
+}
+.btn-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--gray-200);
+  margin: 0 4px;
+}
+
+/* ---- Table ---- */
+.table-container {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.table-header-bar {
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--gray-50);
+}
+.table-info {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+.table-info strong {
+  color: var(--gray-800);
+}
+.table-scroll {
+  overflow-x: auto;
+  max-height: calc(100vh - 380px);
+  overflow-y: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+thead th {
+  background: var(--gray-700);
+  color: var(--white);
+  padding: 9px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  white-space: nowrap;
+  border-right: 1px solid var(--gray-600);
+}
+thead th:last-child { border-right: none; }
+tbody tr {
+  border-bottom: 1px solid var(--gray-100);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+tbody tr:hover {
+  background: var(--primary-light);
+}
+tbody tr.selected {
+  background: #bfdbfe;
+}
+tbody td {
+  padding: 7px 10px;
+  white-space: nowrap;
+  color: var(--gray-700);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+tbody td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--gray-400);
+  font-size: 14px;
+}
+
+/* ---- Truck Scale Panel ---- */
+.truck-scale-panel {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 20px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.ts-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+}
+.ts-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ts-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+.ts-status {
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.ts-status.normal {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ---- Dialog Overlay ---- */
+.dialog-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.dialog-overlay.show {
+  display: flex;
+}
+.dialog-box {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  padding: 24px;
+  min-width: 360px;
+  max-width: 500px;
+}
+.dialog-box h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--gray-900);
+}
+.dialog-box p {
+  font-size: 14px;
+  color: var(--gray-600);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+.dialog-box .dialog-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="app-header">
+  <h1>陸上入出荷オーダ一覧</h1>
+  <div class="header-actions">
+    <button class="auto-update-badge on" id="btnAutoUpdate" onclick="toggleAutoUpdate()">
+      <span class="dot"></span>
+      <span id="autoUpdateLabel">自動更新中</span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== Main ===== -->
+<div class="main-container">
+
+  <!-- Date & Order condition bar -->
+  <div class="date-order-bar">
+    <div class="date-group">
+      <label>出荷日</label>
+      <button class="date-nav-btn" onclick="shiftDate(-1)" title="前日">&laquo; 前日</button>
+      <input type="date" id="dateFrom">
+      <span style="color:var(--gray-400)">〜</span>
+      <input type="date" id="dateTo">
+      <button class="date-nav-btn" onclick="setToday()" title="今日">今日</button>
+      <button class="date-nav-btn" onclick="shiftDate(1)" title="翌日">翌日 &raquo;</button>
+    </div>
+    <div class="order-separator"></div>
+    <div class="order-group">
+      <label class="group-label">オーダ</label>
+      <div class="order-checks">
+        <div class="order-check-item">
+          <input type="radio" name="orderCond" id="orderAll" value="all" checked onchange="onSearchConditionChange()">
+          <label for="orderAll">すべて</label>
+        </div>
+        <div class="order-check-item">
+          <input type="checkbox" id="orderReservation" value="reservation" onchange="onCheckboxChange()">
+          <label for="orderReservation">予約</label>
+        </div>
+        <div class="order-check-item">
+          <input type="checkbox" id="orderAdmission" value="admission" onchange="onCheckboxChange()">
+          <label for="orderAdmission">入門</label>
+        </div>
+        <div class="order-check-item">
+          <input type="checkbox" id="orderLaneEntry" value="lane_entry" onchange="onCheckboxChange()">
+          <label for="orderLaneEntry">入線</label>
+        </div>
+        <div class="order-check-item">
+          <input type="checkbox" id="orderNoResult" value="no_result" onchange="onCheckboxChange()">
+          <label for="orderNoResult">未実績</label>
+        </div>
+        <div class="order-check-item">
+          <input type="checkbox" id="orderResult" value="result" onchange="onCheckboxChange()">
+          <label for="orderResult">実績</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action buttons bar -->
+  <div class="action-bar">
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="doSearch()">&#128269; 表示</button>
+      <button class="btn btn-secondary" onclick="doClear()">&#8634; クリア</button>
+    </div>
+    <div class="btn-divider"></div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="doCSVExport()">&#128196; ファイル出力</button>
+      <button class="btn btn-secondary" onclick="doOrderReceive()">&#128229; オーダ受信</button>
+    </div>
+    <div class="btn-divider"></div>
+    <div class="btn-group">
+      <span class="btn-group-label">カード発行</span>
+      <button class="btn btn-secondary" id="btnCarCard" onclick="doCarCard()" disabled>車番カード</button>
+      <button class="btn btn-secondary" id="btnOrderCard" onclick="doOrderCard()" disabled>オーダカード</button>
+    </div>
+    <div class="btn-divider"></div>
+    <div class="btn-group">
+      <span class="btn-group-label">バーコードリーダーバイパス</span>
+      <button class="btn btn-success" id="btnAdmission" onclick="doAdmission()" disabled>入門受付</button>
+      <button class="btn btn-danger" id="btnCancelAdmission" onclick="doCancelAdmission()" disabled>受付キャンセル</button>
+      <button class="btn btn-secondary" id="btnLaneEntry" onclick="doLaneEntry()" disabled>レーン入線</button>
+      <button class="btn btn-secondary" id="btnWeighing" onclick="doWeighing()" disabled>計量受付</button>
+    </div>
+  </div>
+
+  <!-- Filter panel (collapsible) -->
+  <div class="filter-panel">
+    <div class="filter-header" onclick="toggleFilter()">
+      <h3>&#128270; 検索条件</h3>
+      <span class="filter-toggle-icon" id="filterIcon">&#9660;</span>
+    </div>
+    <div class="filter-body" id="filterBody">
+      <div class="filter-item">
+        <label>車番</label>
+        <input type="text" id="filterCarNo" placeholder="前方一致" oninput="onSearchConditionChange()">
+      </div>
+      <div class="filter-item">
+        <label>タンク</label>
+        <input type="text" id="filterTank" placeholder="完全一致" oninput="onSearchConditionChange()">
+      </div>
+      <div class="filter-item">
+        <label>レーン</label>
+        <input type="text" id="filterLane" placeholder="数値のみ" oninput="onSearchConditionChange()">
+      </div>
+      <div class="filter-item">
+        <label>届け先名</label>
+        <input type="text" id="filterDestination" placeholder="部分一致" oninput="onSearchConditionChange()">
+      </div>
+      <div class="filter-item">
+        <label>最小品名コード</label>
+        <input type="text" id="filterMinProductCode" placeholder="前方一致" oninput="onSearchConditionChange()">
+      </div>
+      <div class="filter-item">
+        <label>最小品名</label>
+        <input type="text" id="filterMinProductName" placeholder="部分一致" oninput="onSearchConditionChange()">
+      </div>
+      <div class="filter-item">
+        <label>伝票No</label>
+        <input type="text" id="filterSlipNo" placeholder="前方一致" oninput="onSearchConditionChange()">
+      </div>
+      <div class="filter-item">
+        <label>受払</label>
+        <select id="filterUkeharai" onchange="onSearchConditionChange()"><option value="">-- 選択 --</option></select>
+      </div>
+      <div class="filter-item">
+        <label>受渡</label>
+        <select id="filterUkewatashi" onchange="onSearchConditionChange()"><option value="">-- 選択 --</option></select>
+      </div>
+      <div class="filter-item">
+        <label>出荷形態</label>
+        <select id="filterShippingType" onchange="onSearchConditionChange()"><option value="">-- 選択 --</option></select>
+      </div>
+      <div class="filter-item">
+        <label>STS</label>
+        <select id="filterSTS" onchange="onSearchConditionChange()"><option value="">-- 選択 --</option></select>
+      </div>
+      <div class="filter-item">
+        <label>管理品名コード</label>
+        <input type="text" id="filterMgmtProductCode" placeholder="前方一致" oninput="onSearchConditionChange()">
+      </div>
+      <div class="filter-item">
+        <label>管理品名</label>
+        <input type="text" id="filterMgmtProductName" placeholder="部分一致" oninput="onSearchConditionChange()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <div class="table-header-bar">
+      <div class="table-info">
+        一覧表示日時: <strong id="listTimestamp">-</strong>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        件数: <strong id="listCount">0</strong> 件
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table id="orderTable">
+        <thead>
+          <tr>
+            <th>入門</th>
+            <th>終了</th>
+            <th>レーン</th>
+            <th>STS</th>
+            <th>車番</th>
+            <th>届け先名</th>
+            <th>最小品名コード</th>
+            <th>最小品名</th>
+            <th>タンク</th>
+            <th>予約数量</th>
+            <th>単位</th>
+            <th>実績数量</th>
+            <th>単位</th>
+            <th>形態</th>
+            <th>計量値</th>
+            <th>Trip</th>
+            <th>伝票No</th>
+            <th>管理品名コード</th>
+            <th>管理品名</th>
+            <th>受払</th>
+            <th>受渡</th>
+            <th>備考</th>
+            <th>実績日</th>
+          </tr>
+        </thead>
+        <tbody id="orderTableBody">
+        </tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        検索結果がありません
+      </div>
+    </div>
+  </div>
+
+  <!-- Truck Scale Panel -->
+  <div class="truck-scale-panel">
+    <span class="ts-label">トラックスケール</span>
+    <div class="ts-group">
+      <span class="ts-label">計量値</span>
+      <span class="ts-value" id="tsWeight">0 kg</span>
+    </div>
+    <div class="ts-group">
+      <span class="ts-label">状態</span>
+      <span class="ts-status normal" id="tsStatus">正常</span>
+    </div>
+    <div class="ts-group">
+      <span class="ts-label">時刻</span>
+      <span class="ts-value" id="tsTime" style="font-size:12px;">-</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== Dialog ===== -->
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box">
+    <h3 id="dialogTitle">確認</h3>
+    <p id="dialogMessage"></p>
+    <div id="dialogInputArea" style="display:none;">
+      <input class="dialog-input" id="dialogInput" placeholder="">
+    </div>
+    <div class="dialog-buttons">
+      <button class="btn btn-secondary" id="dialogCancel" onclick="closeDialog(false)">Cancel</button>
+      <button class="btn btn-primary" id="dialogOk" onclick="closeDialog(true)">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Configuration & State
+   ============================================================ */
+const API_BASE = (location.port === '3000') ? 'http://localhost:8000' : '';
+let autoUpdate = true;
+let autoUpdateTimer = null;
+let selectedRow = null;
+let selectedData = null;
+let orderData = [];
+let dialogResolve = null;
+let filterCollapsed = false;
+
+/* ============================================================
+   Initialization
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', async () => {
+  setTodayDate();
+  await loadMasterData();
+  await doSearch();
+  startAutoUpdate();
+  updateTruckScale();
+});
+
+function setTodayDate() {
+  const now = new Date();
+  const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  document.getElementById('dateFrom').value = today;
+  document.getElementById('dateTo').value = today;
+}
+
+async function loadMasterData() {
+  try {
+    // Load STS dropdown
+    const stsRes = await fetch(`${API_BASE}/api/master/shipping_sts`);
+    const stsData = await stsRes.json();
+    const stsSel = document.getElementById('filterSTS');
+    stsData.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.shipping_status;
+      opt.textContent = s.abbreviation;
+      stsSel.appendChild(opt);
+    });
+
+    // Load 受払 dropdown (type 11)
+    const ukeRes = await fetch(`${API_BASE}/api/master/code_names/11`);
+    const ukeData = await ukeRes.json();
+    const ukeSel = document.getElementById('filterUkeharai');
+    ukeData.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.code;
+      opt.textContent = `${d.code} ${d.name}`;
+      ukeSel.appendChild(opt);
+    });
+
+    // Load 受渡 dropdown (type 13)
+    const uke2Res = await fetch(`${API_BASE}/api/master/code_names/13`);
+    const uke2Data = await uke2Res.json();
+    const uke2Sel = document.getElementById('filterUkewatashi');
+    uke2Data.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.code;
+      opt.textContent = `${d.code} ${d.name}`;
+      uke2Sel.appendChild(opt);
+    });
+
+    // Load 出荷形態 dropdown (type 14)
+    const shipRes = await fetch(`${API_BASE}/api/master/code_names/14`);
+    const shipData = await shipRes.json();
+    const shipSel = document.getElementById('filterShippingType');
+    shipData.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.code;
+      opt.textContent = d.code;
+      shipSel.appendChild(opt);
+    });
+  } catch (e) {
+    console.error('Master data load failed:', e);
+  }
+}
+
+/* ============================================================
+   Search
+   ============================================================ */
+function getSearchParams() {
+  const params = new URLSearchParams();
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo = document.getElementById('dateTo').value;
+
+  if (!dateFrom || !dateTo) {
+    alert('出荷日は正しい日付を入力してください。');
+    return null;
+  }
+  if (dateFrom > dateTo) {
+    alert('出荷日_Fromは出荷日_To以前の日付を入力してください。');
+    return null;
+  }
+
+  const lane = document.getElementById('filterLane').value.trim();
+  if (lane && !/^\d+$/.test(lane)) {
+    alert('レーンは数字のみで入力してください。');
+    return null;
+  }
+
+  params.set('date_from', dateFrom);
+  params.set('date_to', dateTo);
+
+  // Order status
+  const allRadio = document.getElementById('orderAll');
+  if (!allRadio.checked) {
+    const statuses = [];
+    if (document.getElementById('orderReservation').checked) statuses.push('reservation');
+    if (document.getElementById('orderAdmission').checked) statuses.push('admission');
+    if (document.getElementById('orderLaneEntry').checked) statuses.push('lane_entry');
+    if (document.getElementById('orderNoResult').checked) statuses.push('no_result');
+    if (document.getElementById('orderResult').checked) statuses.push('result');
+    if (statuses.length > 0) {
+      params.set('order_statuses', statuses.join(','));
+    }
+  }
+
+  // Text filters
+  const filterMap = {
+    'filterCarNo': 'car_no',
+    'filterTank': 'tank',
+    'filterLane': 'lane',
+    'filterDestination': 'destination',
+    'filterMinProductCode': 'min_product_code',
+    'filterMinProductName': 'min_product_name',
+    'filterSlipNo': 'slip_no',
+    'filterUkeharai': 'ukeharai',
+    'filterUkewatashi': 'ukewatashi',
+    'filterShippingType': 'shipping_type',
+    'filterSTS': 'sts',
+    'filterMgmtProductCode': 'mgmt_product_code',
+    'filterMgmtProductName': 'mgmt_product_name',
+  };
+
+  for (const [elemId, paramName] of Object.entries(filterMap)) {
+    const val = document.getElementById(elemId).value.trim();
+    if (val) params.set(paramName, val);
+  }
+
+  return params;
+}
+
+async function doSearch() {
+  const params = getSearchParams();
+  if (!params) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/orders?${params}`);
+    const json = await res.json();
+    orderData = json.data || [];
+    document.getElementById('listTimestamp').textContent = json.timestamp || '-';
+    document.getElementById('listCount').textContent = json.count || 0;
+    renderTable(orderData);
+  } catch (e) {
+    console.error('Search failed:', e);
+    alert('検索に失敗しました: ' + e.message);
+  }
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('orderTableBody');
+  const empty = document.getElementById('emptyState');
+  tbody.innerHTML = '';
+  selectedRow = null;
+  selectedData = null;
+  updateActionButtons();
+
+  if (data.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  data.forEach((d, idx) => {
+    const tr = document.createElement('tr');
+    tr.dataset.index = idx;
+    tr.onclick = () => selectRow(tr, idx);
+    tr.ondblclick = () => onRowDblClick(idx);
+
+    const cells = [
+      d.admission_time || '',
+      d.loading_end_time || '',
+      d.lane_no != null ? d.lane_no : '',
+      d.sts_abbreviation || '',
+      d.car_no || '',
+      d.destination_name || '',
+      d.min_product_code || '',
+      d.min_product_name || '',
+      d.tank1_1_no || '',
+      d.reservation_qty_display || '',
+      d.reservation_unit_display || '',
+      d.result_qty_display || '',
+      d.result_unit_display || '',
+      d.shipping_type || '',
+      d.weighing_result || '',
+      d.trip != null ? d.trip : '',
+      d.slip_no_display || '',
+      d.mgmt_product_code || '',
+      d.mgmt_product_name || '',
+      d.ukeharai_kbn || '',
+      d.ukewatashi_cond || '',
+      d.remarks || '',
+      d.result_date || '',
+    ];
+
+    cells.forEach((val, ci) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      // Numeric columns: right-align
+      if ([2, 9, 11, 14, 15].includes(ci)) td.className = 'num';
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+function selectRow(tr, idx) {
+  if (selectedRow) selectedRow.classList.remove('selected');
+  tr.classList.add('selected');
+  selectedRow = tr;
+  selectedData = orderData[idx];
+  updateActionButtons();
+}
+
+function updateActionButtons() {
+  const hasSelection = selectedData !== null;
+  document.getElementById('btnCarCard').disabled = !hasSelection;
+  document.getElementById('btnOrderCard').disabled = !hasSelection;
+  document.getElementById('btnAdmission').disabled = !hasSelection;
+  document.getElementById('btnCancelAdmission').disabled = !hasSelection;
+  document.getElementById('btnLaneEntry').disabled = !hasSelection;
+  document.getElementById('btnWeighing').disabled = !hasSelection;
+}
+
+/* ============================================================
+   Row Double Click - Open detail (dummy)
+   ============================================================ */
+function onRowDblClick(idx) {
+  const d = orderData[idx];
+  if (d.shipping_status < 5) {
+    alert('未入門のため詳細情報はありません。');
+    return;
+  }
+  // TODO: 陸上入出荷油量実績画面への遷移（ダミー）
+  alert(`陸上入出荷油量実績画面を開きます（ダミー）\n内部管理No: ${d.internal_no}\n伝票枝番: ${d.slip_branch_no}`);
+}
+
+/* ============================================================
+   Clear
+   ============================================================ */
+function doClear() {
+  setTodayDate();
+  document.getElementById('orderAll').checked = true;
+  const checkboxes = ['orderReservation', 'orderAdmission', 'orderLaneEntry', 'orderNoResult', 'orderResult'];
+  checkboxes.forEach(id => {
+    document.getElementById(id).checked = false;
+    document.getElementById(id).disabled = false;
+  });
+
+  const filters = [
+    'filterCarNo', 'filterTank', 'filterLane', 'filterDestination',
+    'filterMinProductCode', 'filterMinProductName', 'filterSlipNo',
+    'filterUkeharai', 'filterUkewatashi', 'filterShippingType', 'filterSTS',
+    'filterMgmtProductCode', 'filterMgmtProductName'
+  ];
+  filters.forEach(id => document.getElementById(id).value = '');
+
+  // Re-enable auto update
+  if (!autoUpdate) {
+    autoUpdate = true;
+    updateAutoUpdateUI();
+    startAutoUpdate();
+  }
+}
+
+/* ============================================================
+   Order Condition: Radio / Checkbox logic
+   ============================================================ */
+function onCheckboxChange() {
+  const allRadio = document.getElementById('orderAll');
+  const checkboxes = ['orderReservation', 'orderAdmission', 'orderLaneEntry', 'orderNoResult', 'orderResult'];
+  const anyChecked = checkboxes.some(id => document.getElementById(id).checked);
+  if (anyChecked) {
+    allRadio.checked = false;
+  } else {
+    allRadio.checked = true;
+  }
+  onSearchConditionChange();
+}
+
+/* ============================================================
+   Search condition change -> stop auto update
+   ============================================================ */
+function onSearchConditionChange() {
+  if (autoUpdate) {
+    autoUpdate = false;
+    updateAutoUpdateUI();
+    stopAutoUpdate();
+  }
+}
+
+/* ============================================================
+   Auto Update
+   ============================================================ */
+function toggleAutoUpdate() {
+  if (autoUpdate) {
+    autoUpdate = false;
+    updateAutoUpdateUI();
+    stopAutoUpdate();
+  } else {
+    // When turning ON, clear search conditions
+    doClear();
+    autoUpdate = true;
+    updateAutoUpdateUI();
+    startAutoUpdate();
+    doSearch();
+  }
+}
+
+function updateAutoUpdateUI() {
+  const badge = document.getElementById('btnAutoUpdate');
+  const label = document.getElementById('autoUpdateLabel');
+  if (autoUpdate) {
+    badge.className = 'auto-update-badge on';
+    label.textContent = '自動更新中';
+  } else {
+    badge.className = 'auto-update-badge off';
+    label.textContent = '更新停止中';
+  }
+}
+
+function startAutoUpdate() {
+  stopAutoUpdate();
+  if (autoUpdate) {
+    autoUpdateTimer = setInterval(() => {
+      if (autoUpdate) doSearch();
+    }, 15000);
+  }
+}
+
+function stopAutoUpdate() {
+  if (autoUpdateTimer) {
+    clearInterval(autoUpdateTimer);
+    autoUpdateTimer = null;
+  }
+}
+
+/* ============================================================
+   Date Navigation
+   ============================================================ */
+function shiftDate(days) {
+  const fromEl = document.getElementById('dateFrom');
+  const toEl = document.getElementById('dateTo');
+  const d = new Date(fromEl.value + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  const newDate = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  fromEl.value = newDate;
+  toEl.value = newDate;
+  doSearch();
+}
+
+function setToday() {
+  setTodayDate();
+  doSearch();
+}
+
+/* ============================================================
+   CSV Export
+   ============================================================ */
+async function doCSVExport() {
+  const ok = await showDialog('確認', '入力された条件で再検索してファイル出力します。');
+  if (!ok) return;
+
+  const params = getSearchParams();
+  if (!params) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/orders/csv?${params}`);
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const json = await res.json();
+      alert(json.error || json.detail || 'CSV出力でエラーが発生しました');
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const now = new Date();
+    const ts = now.getFullYear().toString() +
+      String(now.getMonth()+1).padStart(2,'0') +
+      String(now.getDate()).padStart(2,'0') +
+      String(now.getHours()).padStart(2,'0') +
+      String(now.getMinutes()).padStart(2,'0') +
+      String(now.getSeconds()).padStart(2,'0');
+    a.href = url;
+    a.download = `land_order_${ts}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error('CSV export failed:', e);
+    alert('ファイル出力に失敗しました: ' + e.message);
+  }
+}
+
+/* ============================================================
+   Order Receive (Dummy)
+   ============================================================ */
+async function doOrderReceive() {
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo = document.getElementById('dateTo').value;
+  if (!dateFrom || !dateTo) {
+    alert('出荷日は正しい日付を入力してください。');
+    return;
+  }
+  if (dateFrom > dateTo) {
+    alert('出荷日_Fromは出荷日_To以前の日付を入力してください。');
+    return;
+  }
+
+  const ok = await showDialog('確認', 'オーダ受信を行います。');
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/order_receive?date_from=${dateFrom}&date_to=${dateTo}`, {method:'POST'});
+    const json = await res.json();
+    alert(json.message);
+
+    // Clear search conditions except date, stop auto update
+    const filters = [
+      'filterCarNo', 'filterTank', 'filterLane', 'filterDestination',
+      'filterMinProductCode', 'filterMinProductName', 'filterSlipNo',
+      'filterUkeharai', 'filterUkewatashi', 'filterShippingType', 'filterSTS',
+      'filterMgmtProductCode', 'filterMgmtProductName'
+    ];
+    filters.forEach(id => document.getElementById(id).value = '');
+
+    autoUpdate = false;
+    updateAutoUpdateUI();
+    stopAutoUpdate();
+    doSearch();
+  } catch (e) {
+    alert('オーダ受信に失敗しました。');
+  }
+}
+
+/* ============================================================
+   Card / Admission / Lane / Weighing (Dummy)
+   ============================================================ */
+async function doCarCard() {
+  if (!selectedData) { alert('オーダを選択してください。'); return; }
+  const ok = await showDialog('確認', `車番カード ${selectedData.car_no || ''} を発行します。`);
+  if (!ok) return;
+  // TODO: 車番カード発行処理（外部連携ダミー）
+  try {
+    await fetch(`${API_BASE}/api/card/car?internal_no=${selectedData.internal_no}&slip_branch_no=${selectedData.slip_branch_no}`, {method:'POST'});
+    alert('車番カードを発行しました（ダミー）');
+  } catch(e) { alert('処理に失敗しました'); }
+}
+
+async function doOrderCard() {
+  if (!selectedData) { alert('オーダを選択してください。'); return; }
+  const ok = await showDialog('確認', `伝票No ${selectedData.slip_no_display || ''} のオーダカードを発行します。`);
+  if (!ok) return;
+  // TODO: オーダカード発行処理（外部連携ダミー）
+  try {
+    await fetch(`${API_BASE}/api/card/order?internal_no=${selectedData.internal_no}&slip_branch_no=${selectedData.slip_branch_no}`, {method:'POST'});
+    alert('オーダカードを発行しました（ダミー）');
+  } catch(e) { alert('処理に失敗しました'); }
+}
+
+async function doAdmission() {
+  if (!selectedData) { alert('オーダを選択してください。'); return; }
+  if (selectedData.shipping_status >= 5) {
+    alert('既に入門済みです。');
+    return;
+  }
+  const ok = await showDialog('確認', `車番 ${selectedData.car_no || ''} Trip ${selectedData.trip || ''} の入門受付を行います。`);
+  if (!ok) return;
+  try {
+    await fetch(`${API_BASE}/api/admission?internal_no=${selectedData.internal_no}&slip_branch_no=${selectedData.slip_branch_no}`, {method:'POST'});
+    alert('入門受付を行いました（ダミー）');
+    doSearch();
+  } catch(e) { alert('処理に失敗しました'); }
+}
+
+async function doCancelAdmission() {
+  if (!selectedData) { alert('オーダを選択してください。'); return; }
+  const ok = await showDialog('確認', `車番 ${selectedData.car_no || ''} Trip ${selectedData.trip || ''} の受付キャンセルを行います。`);
+  if (!ok) return;
+  try {
+    await fetch(`${API_BASE}/api/admission/cancel?internal_no=${selectedData.internal_no}&slip_branch_no=${selectedData.slip_branch_no}`, {method:'POST'});
+    alert('受付キャンセルを行いました（ダミー）');
+    doSearch();
+  } catch(e) { alert('処理に失敗しました'); }
+}
+
+async function doLaneEntry() {
+  if (!selectedData) { alert('オーダを選択してください。'); return; }
+  const laneNo = await showDialogWithInput('レーン入線', `車番 ${selectedData.car_no || ''} Trip ${selectedData.trip || ''} のレーン入線を行います。\nレーン番号を入力してください。`, 'レーン番号');
+  if (laneNo === null || laneNo === false) return;
+  if (!/^\d+$/.test(laneNo)) {
+    alert('レーンは数字のみで入力してください。');
+    return;
+  }
+  try {
+    await fetch(`${API_BASE}/api/lane_entry?internal_no=${selectedData.internal_no}&slip_branch_no=${selectedData.slip_branch_no}&lane_no=${laneNo}`, {method:'POST'});
+    alert(`レーン${laneNo}に入線しました（ダミー）`);
+    doSearch();
+  } catch(e) { alert('処理に失敗しました'); }
+}
+
+async function doWeighing() {
+  if (!selectedData) { alert('オーダを選択してください。'); return; }
+  let msg;
+  if (selectedData.shipping_status === 5) {
+    msg = `車番 ${selectedData.car_no || ''} Trip ${selectedData.trip || ''} の前計量を行います。`;
+  } else if (selectedData.shipping_status === 15 || selectedData.shipping_status === 25) {
+    msg = `車番 ${selectedData.car_no || ''} Trip ${selectedData.trip || ''} の後計量を行います。`;
+  } else {
+    msg = `車番 ${selectedData.car_no || ''} Trip ${selectedData.trip || ''} の計量受付を行います。`;
+  }
+  const ok = await showDialog('確認', msg);
+  if (!ok) return;
+  // TODO: 計量受付処理（ダミー）
+  try {
+    await fetch(`${API_BASE}/api/weighing?internal_no=${selectedData.internal_no}&slip_branch_no=${selectedData.slip_branch_no}`, {method:'POST'});
+    alert('計量受付を行いました（ダミー）');
+  } catch(e) { alert('処理に失敗しました'); }
+}
+
+/* ============================================================
+   Truck Scale (Dummy - static display)
+   ============================================================ */
+function updateTruckScale() {
+  // TODO: PIからのトラックスケールデータ取得（ダミー）
+  document.getElementById('tsWeight').textContent = '0 kg';
+  document.getElementById('tsStatus').textContent = '正常';
+  document.getElementById('tsTime').textContent = new Date().toLocaleTimeString('ja-JP');
+  // Update every 2 seconds
+  setInterval(() => {
+    document.getElementById('tsTime').textContent = new Date().toLocaleTimeString('ja-JP');
+  }, 2000);
+}
+
+/* ============================================================
+   Filter Panel Toggle
+   ============================================================ */
+function toggleFilter() {
+  filterCollapsed = !filterCollapsed;
+  const body = document.getElementById('filterBody');
+  const icon = document.getElementById('filterIcon');
+  if (filterCollapsed) {
+    body.classList.add('hidden');
+    icon.classList.add('collapsed');
+  } else {
+    body.classList.remove('hidden');
+    icon.classList.remove('collapsed');
+  }
+}
+
+/* ============================================================
+   Dialog Helper
+   ============================================================ */
+function showDialog(title, message) {
+  return new Promise(resolve => {
+    document.getElementById('dialogTitle').textContent = title;
+    document.getElementById('dialogMessage').textContent = message;
+    document.getElementById('dialogInputArea').style.display = 'none';
+    document.getElementById('dialogOverlay').classList.add('show');
+    dialogResolve = resolve;
+  });
+}
+
+function showDialogWithInput(title, message, placeholder) {
+  return new Promise(resolve => {
+    document.getElementById('dialogTitle').textContent = title;
+    document.getElementById('dialogMessage').textContent = message;
+    document.getElementById('dialogInputArea').style.display = 'block';
+    document.getElementById('dialogInput').value = '';
+    document.getElementById('dialogInput').placeholder = placeholder || '';
+    document.getElementById('dialogOverlay').classList.add('show');
+    dialogResolve = (ok) => {
+      if (ok) {
+        resolve(document.getElementById('dialogInput').value.trim());
+      } else {
+        resolve(null);
+      }
+    };
+  });
+}
+
+function closeDialog(result) {
+  document.getElementById('dialogOverlay').classList.remove('show');
+  if (dialogResolve) {
+    dialogResolve(result);
+    dialogResolve = null;
+  }
+}
+</script>
+</body>
+</html>
