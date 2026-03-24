@@ -3,14 +3,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import datetime
+import logging
+import os
+
+from dotenv import load_dotenv
+load_dotenv()
 
 from app.database import init_db, seed_db
 from app.repository import (
-    search_transfer_orders,
-    search_auto_refresh_orders,
     get_assignable_batches,
     register_batch,
 )
+from app.sqlserver_repository import (
+    search_transfer_orders_sqlserver,
+    search_auto_refresh_orders_sqlserver,
+)
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
@@ -58,15 +68,17 @@ async def get_orders(
             detail="移送日_Fromは移送日_To以前の日付を入力してください。",
         )
 
-    rows = search_transfer_orders(
-        date_from=date_from,
-        date_to=date_to,
-        slip_no=slip_no or None,
-        from_tank=from_tank or None,
-        to_tank=to_tank or None,
-        item_code=item_code or None,
-        item_name=item_name or None,
-    )
+    try:
+        rows = search_transfer_orders_sqlserver(
+            slip_no=slip_no or None,
+            from_tank=from_tank or None,
+            to_tank=to_tank or None,
+            item_name=item_name or None,
+        )
+    except Exception as e:
+        logger.error("SQL Server query failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"DB接続エラー: {e}")
+
     return {
         "data": rows,
         "count": len(rows),
@@ -76,8 +88,13 @@ async def get_orders(
 
 @app.get("/api/orders/auto-refresh")
 async def get_orders_auto_refresh():
-    """Auto-refresh: today + incomplete before today."""
-    rows = search_auto_refresh_orders()
+    """Auto-refresh: all records from SQL Server."""
+    try:
+        rows = search_auto_refresh_orders_sqlserver()
+    except Exception as e:
+        logger.error("SQL Server auto-refresh query failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"DB接続エラー: {e}")
+
     return {
         "data": rows,
         "count": len(rows),
@@ -136,15 +153,16 @@ async def export_csv(
             detail="移送日_Fromは移送日_To以前の日付を入力してください。",
         )
 
-    rows = search_transfer_orders(
-        date_from=date_from,
-        date_to=date_to,
-        slip_no=slip_no or None,
-        from_tank=from_tank or None,
-        to_tank=to_tank or None,
-        item_code=item_code or None,
-        item_name=item_name or None,
-    )
+    try:
+        rows = search_transfer_orders_sqlserver(
+            slip_no=slip_no or None,
+            from_tank=from_tank or None,
+            to_tank=to_tank or None,
+            item_name=item_name or None,
+        )
+    except Exception as e:
+        logger.error("SQL Server CSV export query failed: %s", e)
+        raise HTTPException(status_code=500, detail=f"DB接続エラー: {e}")
 
     if len(rows) == 0:
         raise HTTPException(status_code=404, detail="検索結果が0件でした。")

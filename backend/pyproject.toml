@@ -8,6 +8,8 @@ authors = ["dev"]
 python = "^3.11"
 fastapi = {extras = ["standard"], version = "^0.115.0"}
 uvicorn = {extras = ["standard"], version = "^0.30.0"}
+pymssql = "^2.2.0"
+python-dotenv = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]
